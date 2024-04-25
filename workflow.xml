@@ -1,0 +1,106 @@
+<tool id='NA' name='NA'>
+  <command interpreter='bash'>main.sh</command>
+  <cancel interpreter='bash'>cancel.sh</cancel>
+  <inputs>
+    <section name='pwrl_host' type='section' title='Job Host' expanded='true'>
+      <param 
+        name='resource' 
+        type='computeResource' 
+        label='Service host' 
+        hideUserWorkspace='true' 
+        help='Resource to host the service'
+        hideDisconnectedResources='false'
+      ></param>
+      <param 
+        name='jobschedulertype' 
+        type='select' 
+        label='Select Controller or SLURM Partition' 
+        help='Job will submitted using SSH or sbatch'   
+        multiple='false'>
+            <option value="CONTROLLER">Controller or Login Node</option>
+            <option value="SLURM"  selected="true">SLURM Partition</option>
+      ></param>    
+      <param 
+        name='_sch__dd_account_e_' 
+        label='Account' 
+        type='dynamicAccountDropdown' 
+        help='SLURM account to submit the interactive job' 
+        resource='pwrl_host.resource'
+        depends_on='pwrl_host.jobschedulertype'
+        show_if='SLURM'
+      ></param>
+      <param 
+        name='_sch__dd_partition_e_' 
+        label='Partition' 
+        type='dynamicPartitionDropdown' 
+        resource='pwrl_host.resource'
+        account='pwrl_host._sch__dd_account_e_'
+        help='SLURM partition to submit the interactive job. Leave empty to let SLURM pick the optimal option.' 
+        depends_on='pwrl_host.jobschedulertype'
+        show_if='SLURM'
+        optional='true'
+        dependent='true'
+      ></param>
+      <param name='qos'
+        label='Quality of Service [QoS]'
+        type="dynamicQOSDropdown"
+        help="Select a QOS from the drop down menu."
+        resource="pwrl_host.resource"
+        account="pwrl_host._sch__dd_account_e_"
+        partition="pwrl_host._sch__dd_partition_e_"
+        dependent="true"
+        depends_on='pwrl_host.jobschedulertype'
+        show_if='SLURM'
+      ></param>
+      <param 
+        name='_sch__dd_time_e_' 
+        label='Walltime' 
+        type='text' 
+        help='e.g. 01:00:00 - Amount of time slurm will honor the interactive session.' 
+        value=''
+        depends_on='pwrl_host.jobschedulertype'
+        show_if='SLURM'
+      ></param>
+      <param 
+        name='_sch__dd_nodes_e_' 
+        label='Number of nodes' 
+        type='integer' 
+        min="1" 
+        max="100" 
+        help='--nodes=value slurm directive' 
+        value='1'
+        depends_on='pwrl_host.jobschedulertype'
+        show_if='SLURM'
+      ></param>
+    </section>
+   <section name='script' type='section' title='Job Script' expanded='true'>
+     <param 
+        name='shebang' 
+        label='Shebang' 
+        type='text' 
+        value='#!/bin/bash' 
+        help='Type or copy paste the shebang of the script'
+    ></param>
+     <param 
+        name='text' 
+        label='Type your script' 
+        type='textarea' 
+        value='' 
+        help='Type or copy paste the script that is submitted to the selected resource. If the job is submitted to a SLURM scheduler to may include additional scheduler directives.'
+    ></param>
+    <param
+        name='wait'
+        type='boolean'
+        truevalue='true'
+        falsevalue='false'
+        checked='true'
+        show_if='SLURM'
+        depends_on='pwrl_host.jobschedulertype'
+        label='Wait for the SLURM job to exit? '
+        help='If yes is selected, the PW job waits for the SLURM job to complete while continuously monitoring its status and the possibility to cancel the SLURM job when the PW job is canceled.'>
+    </param>
+    </section>
+  </inputs>
+  <outputs>
+  </outputs>
+</tool>
