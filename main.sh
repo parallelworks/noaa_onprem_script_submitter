@@ -34,7 +34,7 @@ chmod +x job_script
 if [[ ${jobschedulertype} == "SLURM" ]]; then
     cat resources/host/batch_header.sh | grep SBATCH >> job_script
 fi
-echo -e ${script_text} >> job_script
+jq -r '.script.text' inputs.json | sed 's/\\n/\n/g' >> job_script
 
 echo; echo; echo "TRANSFER JOB SCRIPT TO CLUSTER"
 ${sshcmd} "mkdir -p ${resource_jobdir}"
