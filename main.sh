@@ -43,8 +43,8 @@ scp job_script ${resource_publicIp}:${resource_jobdir}/job_script
 
 if [[ ${jobschedulertype} == "SLURM" ]]; then
     echo; echo; echo "SUBMITTING SLURM JOB"
-    echo ${job_submit_cmd}
     job_submit_cmd="${sshcmd} ${submit_cmd} ${resource_jobdir}/job_script"
+    echo "${job_submit_cmd}"
     export jobid=$(${job_submit_cmd} | tail -1 | awk -F ' ' '{print $4}')
 
     if [[ -z ${jobid} ]]; then
