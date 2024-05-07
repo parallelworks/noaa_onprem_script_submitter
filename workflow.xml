@@ -86,7 +86,7 @@
         label='Type your script' 
         type='textarea' 
         value='' 
-        help='Type or copy paste the script that is submitted to the selected resource. If the job is submitted to a SLURM scheduler to may include additional scheduler directives.'
+        help='Type or copy paste the script that is submitted to the selected resource. If the job is submitted to a SLURM scheduler you may include additional scheduler directives.'
     ></param>
     <param
         name='wait'
