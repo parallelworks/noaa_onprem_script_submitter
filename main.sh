@@ -60,6 +60,7 @@ if [[ ${jobschedulertype} == "SLURM" ]]; then
         wait_job
 
         echo; echo; echo "SLURM LOGS:"
+        echo
         print_slurm_logs ${resource_jobdir}/job_script
         echo; echo
 
