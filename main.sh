@@ -59,6 +59,10 @@ if [[ ${jobschedulertype} == "SLURM" ]]; then
         echo "${sshcmd} ${cancel_cmd} ${jobid}" >> cancel.sh
         wait_job
 
+        echo; echo; echo "SLURM logs:"
+        print_slurm_logs ${resource_jobdir}/job_script
+        echo
+
         ${sshcmd} "sacct -j ${jobid}" 
         if ${sshcmd} "sacct -j ${jobid} --format=State" | grep -q "FAILED"; then
             exit 1
