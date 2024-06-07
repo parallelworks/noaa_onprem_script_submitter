@@ -26,8 +26,7 @@
         type='dynamicAccountDropdown' 
         help='SLURM account to submit the interactive job' 
         resource='pwrl_host.resource'
-        depends_on='pwrl_host.jobschedulertype'
-        show_if='SLURM'
+        show_if='{"pwrl_host.jobschedulertype":"SLURM","pwrl_host.resource.provider":["slurmshv2","existing"]}'
       ></param>
       <param 
         name='_sch__dd_partition_e_' 
@@ -35,11 +34,20 @@
         type='dynamicPartitionDropdown' 
         resource='pwrl_host.resource'
         account='pwrl_host._sch__dd_account_e_'
-        help='SLURM partition to submit the interactive job. Leave empty to let SLURM pick the optimal option.' 
-        depends_on='pwrl_host.jobschedulertype'
-        show_if='SLURM'
+        help='SLURM partition to submit the interactive job.' 
+        show_if='{"pwrl_host.jobschedulertype":"SLURM","pwrl_host.resource.provider":["slurmshv2","existing"]}'
         dependent='true'
       ></param>
+      <param 
+        name='_sch__dd_partition_e__tag_cloud' 
+        label='SLURM partition' 
+        type='dynamicPartitionDropdown' 
+        resource='pwrl_host.resource'
+        help='Partition to submit the interactive job. Leave empty to let SLURM pick the optimal option.' 
+        show_if='{"pwrl_host.jobschedulertype":"SLURM","pwrl_host.resource.provider":["gclusterv2", "pclusterv2", "azclusterv2"]}'
+        optional='true'
+        dependent='false'
+      ></param> 
       <param name='qos'
         label='Quality of Service [QoS]'
         type="dynamicQOSDropdown"
@@ -48,8 +56,7 @@
         account="pwrl_host._sch__dd_account_e_"
         partition="pwrl_host._sch__dd_partition_e_"
         dependent="true"
-        depends_on='pwrl_host.jobschedulertype'
-        show_if='SLURM'
+        show_if='{"pwrl_host.jobschedulertype":"SLURM","pwrl_host.resource.provider":["slurmshv2","existing"]}'
       ></param>
       <param 
         name='_sch__dd_time_e_' 
