@@ -109,7 +109,6 @@
         type='boolean'
         truevalue='true'
         falsevalue='false'
-        checked='true'
         show_if='SLURM'
         depends_on='pwrl_host.jobschedulertype'
         label='Wait for the SLURM job to exit? '
