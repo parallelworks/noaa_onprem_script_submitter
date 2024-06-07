@@ -57,11 +57,10 @@ if [[ ${jobschedulertype} == "SLURM" ]]; then
 
     if [[ ${script_wait} == "true" ]]; then
         echo "${sshcmd} ${cancel_cmd} ${jobid}" >> cancel.sh
+        log_file_paths=$(${sshcmd} scontrol show job ${jobid} | grep -E "StdOut|StdErr" | awk -F= '{print $2}' | uniq)
         wait_job
 
-        echo; echo; echo "SLURM LOGS:"
-        echo
-        print_slurm_logs ${resource_jobdir}/job_script
+        print_slurm_logs "${log_file_paths}"
         echo; echo
 
         ${sshcmd} "sacct -j ${jobid}" 
