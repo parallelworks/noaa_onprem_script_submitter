@@ -110,7 +110,7 @@
         truevalue='true'
         falsevalue='false'
         show_if='SLURM'
-        value='false'
+        value='true'
         depends_on='pwrl_host.jobschedulertype'
         label='Wait for the SLURM job to exit? '
         help='If yes is selected, the PW job waits for the SLURM job to complete while continuously monitoring its status and the possibility to cancel the SLURM job when the PW job is canceled.'>
