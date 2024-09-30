@@ -1,77 +1,14 @@
 #!/bin/bash
-source /etc/profile.d/parallelworks.sh
-source /etc/profile.d/parallelworks-env.sh
-source /pw/.miniconda3/etc/profile.d/conda.sh
-conda activate
 
-source inputs.sh
+# Define a cleanup function
+cleanup() {
+    ./cancel.sh 2>&1 | tee clean_and_exit.out
+}
 
-if [ -z "${workflow_utils_branch}" ]; then
-    # If empty, clone the main default branch
-    git clone https://github.com/parallelworks/workflow-utils.git
-else
-    # If not empty, clone the specified branch
-    git clone -b "$workflow_utils_branch" https://github.com/parallelworks/workflow-utils.git
-fi
+# Set the trap to call cleanup on script exit
+trap cleanup EXIT
 
-source workflow-utils/workflow-libs.sh
-
-python workflow-utils/input_form_resource_wrapper.py
-
-if [ $? -ne 0 ]; then
-    echo "ERROR - Resource wrapper failed"
-    exit 1
-fi
-
-source resources/host/inputs.sh
-export sshcmd="ssh  -o StrictHostKeyChecking=no ${resource_publicIp}"
-
-echo; echo; echo "CREATING JOB SCRIPT"
-echo "Path: ${PWD}/job_script"
-echo ${script_shebang} > job_script
-chmod +x job_script
-
-if [[ ${jobschedulertype} == "SLURM" ]]; then
-    cat resources/host/batch_header.sh | grep SBATCH >> job_script
-fi
-jq -r '.script.text' inputs.json | sed 's/\\n/\n/g' >> job_script
-
-echo; echo; echo "TRANSFER JOB SCRIPT TO CLUSTER"
-${sshcmd} "mkdir -p ${resource_jobdir}"
-scp job_script ${resource_publicIp}:${resource_jobdir}/job_script
-
-
-if [[ ${jobschedulertype} == "SLURM" ]]; then
-    echo; echo; echo "SUBMITTING SLURM JOB"
-    job_submit_cmd="${sshcmd} ${submit_cmd} ${resource_jobdir}/job_script"
-    echo "${job_submit_cmd}"
-    export jobid=$(${job_submit_cmd} | tail -1 | awk -F ' ' '{print $4}')
-
-    if [[ -z ${jobid} ]]; then
-        echo; echo;
-        echo "Failed to submit job to the scheduler with command:"
-        echo "${job_submit_cmd}"
-        echo; echo "Exiting workflow."
-        exit 1
-    fi
-
-    if [[ ${script_wait} == "true" ]]; then
-        echo "${sshcmd} ${cancel_cmd} ${jobid}" >> cancel.sh
-        log_file_paths=$(${sshcmd} scontrol show job ${jobid} | grep -E "StdOut|StdErr" | awk -F= '{print $2}' | uniq)
-        wait_job
-
-        print_slurm_logs "${log_file_paths}"
-        echo; echo
-
-        ${sshcmd} "sacct -j ${jobid}" 
-        if ${sshcmd} "sacct -j ${jobid} --format=State" | grep -q "FAILED"; then
-            exit 1
-        else
-            exit 0
-        fi
-    fi
-else
-    echo; echo; echo "EXECUTING JOB ON SCHEDULER NODE"
-    echo "${sshcmd} ${resource_jobdir}/job_script"
-    ${sshcmd} ${resource_jobdir}/job_script
-fi
+./input_form_resource_wrapper.sh 2>&1 | tee input_form_resource_wrapper.out || exit 1
+./create_job_script.sh 2>&1 | tee create_job_script.out || exit 1
+./transfer_job_script.sh 2>&1 | tee transfer_job_script.out || exit 1
+./submit_job_and_wait.sh 2>&1 | tee submit_job_and_wait.out || exit 1
