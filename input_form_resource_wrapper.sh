@@ -1,6 +1,6 @@
 #!/bin/bash
+source inputs.sh
 source load_env.sh
-source resources/host/inputs.sh
 
 
 if [ -z "${workflow_utils_branch}" ]; then

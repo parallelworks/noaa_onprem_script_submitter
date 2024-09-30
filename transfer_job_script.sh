@@ -1,6 +1,6 @@
 #!/bin/bash
-source load_env.sh
 source resources/host/inputs.sh
+source load_env.sh
 
 echo; echo; echo "TRANSFER JOB SCRIPT TO CLUSTER"
 ${sshcmd} "mkdir -p ${resource_jobdir}"
