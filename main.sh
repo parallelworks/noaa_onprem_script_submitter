@@ -2,7 +2,7 @@
 
 # Define a cleanup function
 cleanup() {
-    ./utils/steps/clean_and_exit.sh 2>&1 | tee clean_and_exit.out
+    ./cancel.sh 2>&1 | tee clean_and_exit.out
 }
 
 # Set the trap to call cleanup on script exit

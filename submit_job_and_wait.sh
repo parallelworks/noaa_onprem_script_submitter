@@ -1,6 +1,7 @@
 #!/bin/bash
 source resources/host/inputs.sh
 source load_env.sh
+source workflow-utils/workflow-libs.sh
 
 if [[ ${jobschedulertype} == "SLURM" ]]; then
     echo; echo; echo "SUBMITTING SLURM JOB"
