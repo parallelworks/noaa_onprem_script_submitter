@@ -1,5 +1,5 @@
 #!/bin/bash
-source load-env.sh
+source load_env.sh
 source resources/hosts/inputs.sh
 
 echo; echo; echo "TRANSFER JOB SCRIPT TO CLUSTER"
