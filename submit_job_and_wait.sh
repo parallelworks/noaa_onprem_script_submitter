@@ -1,6 +1,6 @@
 #!/bin/bash
 source load_env.sh
-source resources/hosts/inputs.sh
+source resources/host/inputs.sh
 
 if [[ ${jobschedulertype} == "SLURM" ]]; then
     echo; echo; echo "SUBMITTING SLURM JOB"

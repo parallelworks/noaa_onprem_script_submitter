@@ -1,6 +1,6 @@
 #!/bin/bash
 source load_env.sh
-source resources/hosts/inputs.sh
+source resources/host/inputs.sh
 
 echo; echo; echo "CREATING JOB SCRIPT"
 echo "Path: ${PWD}/job_script"
