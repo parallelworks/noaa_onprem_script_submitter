@@ -1,0 +1,127 @@
+jobs:
+  main:
+    steps:
+      - name: Run Input Form Resource Wrapper
+        run: ./input_form_resource_wrapper.sh
+      - name: Create Job Script
+        run: ./create_job_script.sh
+      - name: Transfer Job Script
+        run: ./transfer_job_script.sh
+      - name: Submit Job and Wait
+        run: ./submit_job_and_wait.sh
+        cleanup: ./cancel.sh
+
+'on':
+  execute:
+    inputs:
+      pwrl_host:
+        type: group
+        label: Service Host
+        items:
+          resource:
+            type: compute-clusters
+            label: Service host
+            include-workspace: false
+            tooltip: Resource to host the service
+          nports:
+            type: number
+            label: Number of Ports to Reserve
+            hidden: true
+            default: 1
+          jobschedulertype:
+            type: dropdown
+            label: Select Controller or SLURM Partition
+            default: CONTROLLER
+            options:
+              - value: CONTROLLER
+                label: Controller
+              - value: SLURM
+                label: SLURM Partition
+            tooltip: Job will be submitted using SSH or sbatch, respectively
+          _sch__dd_account_e__tag_existing:
+            label: SLURM account 
+            type:  slurm-accounts
+            resource: ${{ inputs.pwrl_host.resource }}
+            tooltip: Account to submit the interactive job
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+            ignore: ${{ .hidden }}
+            optional: ${{ .hidden }}
+          _sch__dd_partition_e__tag_existing:
+            label: SLURM partition
+            type:  slurm-partitions
+            resource: ${{ inputs.pwrl_host.resource }}
+            tooltip: SLURM partition to submit the interactive job
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+            ignore: ${{ .hidden }}
+            optional: ${{ .hidden }}
+          qos_tag_existing:
+            label: Quality of Service [QoS]
+            type: slurm-qos
+            resource: ${{ inputs.pwrl_host.resource }}
+            tooltip: Select a QOS from the drop down menu
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+            ignore: ${{ .hidden }}
+            optional: ${{ .hidden }}
+          _sch__dd_ntasks_e__tag_existing:
+            label: Number of tasks
+            type:  number
+            min: 1
+            max: 100
+            default: 1
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+            ignore: ${{ .hidden }}
+          _sch__dd_nodes_e__tag_existing:
+            label: Number of nodes
+            type:  number
+            default: 1
+            min: 1
+            max: 100
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+            ignore: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' !== inputs.pwrl_host.resource.provider }}
+          _sch__dd_partition_e__tag_cloud:
+            type: slurm-partitions
+            label: SLURM partition
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  || 'existing' === inputs.pwrl_host.resource.provider }}
+            ignore: ${{ .hidden }}
+            optional: true
+            tooltip: >-
+              Partition to submit the interactive job. Leave empty to let SLURM
+              pick the optimal option.
+            resource: ${{ inputs.pwrl_host.resource }}
+          _sch__dd_time_e_:
+            label: Walltime
+            type: string
+            default: 01:00:00
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  }}
+            ignore: ${{ .hidden }}
+            tooltip: e.g. 01:00:00 - Amount of time slurm will honor the interactive session.
+          scheduler_directives_slurm:
+            type: string
+            label: Scheduler directives
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype }}
+            ignore: ${{ .hidden }}
+            optional: true
+            tooltip: >-
+              e.g. --mem=1000;--gpus-per-node=1 - Use the semicolon character ;
+              to separate parameters. Do not include the SBATCH keyword.
+        collapsed: false
+      script:
+        type: group
+        label: Job Script
+        items:
+          shebang:
+            label: Shebang
+            type: string
+            default: '#!/bin/bash'
+            tooltip: Type or copy paste the shebang of the script
+          text:
+            label: Type Your Script
+            type:  editor
+            tooltip: Type or copy paste the script that is submitted to the selected resource. If the job is submitted to a SLURM scheduler you may include additional scheduler directives.
+          wait:
+            type: boolean
+            label: Wait for the SLURM job to exit?
+            default: true
+            tooltip: If yes is selected, the PW job waits for the SLURM job to complete while continuously monitoring its status and the possibility to cancel the SLURM job when the PW job is canceled.
+            hidden: ${{ 'SLURM' !== inputs.pwrl_host.jobschedulertype  }}
+            ignore: ${{ .hidden }}
